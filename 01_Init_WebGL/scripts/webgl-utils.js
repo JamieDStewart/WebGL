@@ -8,12 +8,12 @@
 /**
  * Initialises a WebGL context for the provided canvas.
  * @param {canvas} canvas the canvas this context is to be created for
- * @return {WebGLRenderingContext} the rendering context that for this canvas
+ * @return {WebGL2RenderingContext} the rendering context that for this canvas
  */
 function initWebGL(canvas){
     var _gl = null;
     try{
-        _gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+        _gl = canvas.getContext("webgl2");
     }
     catch(e){}
     //if a webgl context has not been created then display an alert message and return null;
@@ -26,7 +26,7 @@ function initWebGL(canvas){
 
 /**
  * Create a shader from the contents of a string buffer 
- * @param {WebGLRenderingConetex} a_gl the webGL rendering context
+ * @param {WebGL2RenderingConetex} a_gl the webGL rendering context
  * @param {string} a_type the type of shader to be created/compiled
  * @param {string} a_source the shader as a string buffer
  * 
@@ -54,7 +54,7 @@ function createShader(a_gl, a_type, a_source){
 
 /**
  * Create a shader from the contents of a scripts tag
- * @param {WebGLRenderingContext} a_gl  the WebGL rendering context
+ * @param {WebGL2RenderingContext} a_gl  the WebGL rendering context
  * @param {string} a_scriptTagID the script tag id
  * @param {string} a_optShaderType optional parameter, the type of shader to load
  *          If not passed in will use the shader type flag from the script tag.
@@ -87,7 +87,7 @@ function createShaderFromScriptTag(a_gl, a_scriptTagID, a_optShaderType ){
 
 /**
  * Creates a shader program from the two provided compiled shaders
- * @param {WebGLRenderingContext} a_gl the WebGL rendering context
+ * @param {WebGL2RenderingContext} a_gl the WebGL rendering context
  * @param {WebGLShader} a_vertexShader the compiled vertex shader
  * @param {WebGLShader} a_fragmentShader the compiled fragment shader
  */
@@ -99,8 +99,8 @@ function createProgram( a_gl, a_vertexShader, a_fragmentShader ){
         return null;
     }
 
-    a_gl.attachShader(a_vertexShader);
-    a_gl.attachShader(a_fragmentShader);
+    a_gl.attachShader(program, a_vertexShader);
+    a_gl.attachShader(program,a_fragmentShader);
     a_gl.linkProgram(program);
     //test for progarm link success
     var linkStatus = a_gl.getProgramParameter(program, a_gl.LINK_STATUS);
@@ -114,7 +114,7 @@ function createProgram( a_gl, a_vertexShader, a_fragmentShader ){
 
 /**
  * Load and create a program from script tags contained in the document
- * @param {WebGLRenderingContext} a_gl 
+ * @param {WebGL2RenderingContext} a_gl 
  * @param {string} a_vertexTagID 
  * @param {string} a_fragmentTagID 
  * 
@@ -127,6 +127,12 @@ function createProgramFromScriptTags( a_gl, a_vertexTagID, a_fragmentTagID){
     return {program:program, vertexShader:vertexShader, fragmentShader:fragmentShader};
 }
 
+/**
+ * 
+ * @param {string} a_filename the filepath that is to be loaded
+ * @param {number} a_shaderType the WebGL shader type ID value
+ * @param {function} a_callback the function that is to be called when the shader file is loaded
+ */
 function loadShaderFromFile( a_filename, a_shaderType, a_callback){
     var fileData = new XMLHttpRequest();
     fileData.onreadystatechange = function(){
