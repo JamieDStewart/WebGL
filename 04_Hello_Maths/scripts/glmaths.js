@@ -482,10 +482,10 @@ class vec3{
 }
 
 class mat3{
-    constructor( a_m11, a_m12, a_m13, a_m21, a_m22, a_m23, a_m31, a_m32, a_m33){
-        this._m11 = a_m11; this._m12 = a_m12; this._m13 = a_m13;
-        this._m21 = a_m21; this._m22 = a_m22; this._m23 = a_m23;
-        this._m31 = a_m31; this._m32 = a_m32; this._m33 = a_m33;
+    constructor( a_m11, a_m21, a_m31, a_m12, a_m22, a_m32, a_m13, a_m23, a_m33){
+        this._m11 = a_m11; this._m21 = a_m21; this._m31 = a_m31;
+        this._m12 = a_m12; this._m22 = a_m22; this._m32 = a_m32;
+        this._m13 = a_m13; this._m23 = a_m23; this._m33 = a_m33;
     }
     get m11(){ return this._m11; }   get m12(){ return this._m12; }  get m13(){ return this._m13; }
     get m21(){ return this._m21; }   get m22(){ return this._m22; }  get m23(){ return this._m23; }
@@ -495,17 +495,17 @@ class mat3{
     set m21(a_m21){ this._m21 = a_m21; }   set m22(a_m22){ this._m22 = a_m22; }  set m23(a_m23){ this._m23 = a_m23; }
     set m31(a_m31){ this._m31 = a_m31; }   set m32(a_m32){ this._m32 = a_m32; }  set m33(a_m33){ this._m33 = a_m33; }
 
-    get xAxis(){ return new Array([this._m11, this.m_12, this._m13]); }
-    get yAxis(){ return new Array([this._m21, this.m_22, this._m23]); }
-    get zAxis(){ return new Array([this._m31, this.m_32, this._m33]); }
+    get xAxis(){ return new Array([this._m11, this.m_21, this._m31]); }
+    get yAxis(){ return new Array([this._m12, this.m_22, this._m32]); }
+    get zAxis(){ return new Array([this._m13, this.m_23, this._m33]); }
 
-    set xAxis(a_v3){ this._m11 = a_v3.x; this._m12 = a_v3.y; this._m13 = a_v3.z; }
-    set yAxis(a_v3){ this._m21 = a_v3.x; this._m22 = a_v3.y; this._m23 = a_v3.z; }
-    set zAxis(a_v3){ this._m31 = a_v3.x; this._m32 = a_v3.y; this._m33 = a_v3.z; }
+    set xAxis(a_v3){ this._m11 = a_v3.x; this._m21 = a_v3.y; this._m31 = a_v3.z; }
+    set yAxis(a_v3){ this._m12 = a_v3.x; this._m22 = a_v3.y; this._m32 = a_v3.z; }
+    set zAxis(a_v3){ this._m13 = a_v3.x; this._m23 = a_v3.y; this._m33 = a_v3.z; }
 
     asFloat32Array() {
-        return new Float32Array([this._m11 = a_m11, this._m12 = a_m12, this._m13 = a_m13, this._m21 = a_m21, this._m22 = a_m22,
-                                 this._m23 = a_m23, this._m31 = a_m31, this._m32 = a_m32, this._m33 = a_m33]);
+        return new Float32Array([this._m11, this._m21, this._m31, 
+            this._m12, this._m22, this._m23, this._m13, this._m23, this._m33]);
     }
     
     identity(){
@@ -516,17 +516,17 @@ class mat3{
 
     neg(){
         return new mat3(
-            -this.m11, -this.m12, -this.m13,
-            -this.m21, -this.m22, -this.m23,
-            -this.m31, -this.m32, -this.m33
+            -this.m11, -this.m21, -this.m31,
+            -this.m12, -this.m22, -this.m32,
+            -this.m13, -this.m23, -this.m33
         );
     }
 
     add(a_m3){
         return new mat3(
-            this.m11 + a_m3.m11, this.m12 + a_m3.m12, this.m13 + a_m3.m13,
-            this.m21 + a_m3.m21, this.m22 + a_m3.m22, this.m23 + a_m3.m23,
-            this.m31 + a_m3.m31, this.m32 + a_m3.m32, this.m33 + a_m3.m33
+            this.m11 + a_m3.m11, this.m21 + a_m3.m21, this.m31 + a_m3.m31,
+            this.m12 + a_m3.m12, this.m22 + a_m3.m22, this.m23 + a_m3.m32,
+            this.m13 + a_m3.m13, this.m23 + a_m3.m23, this.m33 + a_m3.m33
         );
     }
 
@@ -540,13 +540,34 @@ class mat3{
 
     mul(a_m3){
         if( a_val instanceof mat3){
-            return new mat3();
+            return new mat3(
+                this.m11 * a_val.m11 + this.m12 * a_val.m21 + this.m13 * a_val.m31,
+                this.m21 * a_val.m11 + this.m22 * a_val.m21 + this.m23 * a_val.m31,
+                this.m31 * a_val.m11 + this.m32 * a_val.m21 + this.m33 * a_val.m31,
+                this.m11 * a_val.m12 + this.m12 * a_val.m22 + this.m13 * a_val.m32,
+                this.m21 * a_val.m12 + this.m22 * a_val.m22 + this.m23 * a_val.m32,
+                this.m31 * a_val.m12 + this.m32 * a_val.m22 + this.m33 * a_val.m32,
+                this.m11 * a_val.m13 + this.m12 * a_val.m23 + this.m13 * a_val.m33,
+                this.m21 * a_val.m13 + this.m22 * a_val.m23 + this.m23 * a_val.m33,
+                this.m31 * a_val.m13 + this.m32 * a_val.m23 + this.m33 * a_val.m33
+            );
+        }
+        else if( a_val instanceof vec3){
+            return new vec3(this.m11 * a_val.x + this.m12 * a_val.y + this.m13 * a_val.z,
+                            this.m21 * a_val.x + this.m22 * a_val.y + this.m23 * a_val.z,
+                            this.m31 * a_val.x + this.m32 * a_val.y + this.m33 * a_val.z);
         }
         else{
             return new mat3( this.m11 * a_m3, this.m12 * a_m3, this.m13 * a_m3,
                              this.m21 * a_m3, this.m22 * a_m3, this.m23 * a_m3,
                              this.m31 * a_m3, this.m32 * a_m3, this.m33 * a_m3 );
         }
+    }
+
+    transpose(){
+        var k = this.m12; this.m12 = this.m21; this.m21 = k;
+        k = this.m13; this.m13 = this.m31; this.m31 = k;
+        k = this.m32; this.m32 = this.m23; this.m23 = k;
     }
 
 
