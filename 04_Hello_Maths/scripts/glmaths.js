@@ -570,5 +570,22 @@ class mat3{
         k = this.m32; this.m32 = this.m23; this.m23 = k;
     }
 
+    determinant(){
+        return (this.m11 * ( this.m22 * this.m33 - this.m23 * this.m32 ) +
+                this.m21 * ( this.m32 * this.m13 - this.m12 * this.m33 ) +
+                this.m31 * ( this.m12 * this.m23 - this.m22 * this.m13 ) )
+    }
+
+    inverse(){
+        var fDet = determinant();
+        if( fDet > 0.0){
+            var invDet = 1.0/ fDet;
+            
+        }
+        else{
+            return false;
+        }
+    }
+
 
 }
