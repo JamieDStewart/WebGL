@@ -483,9 +483,20 @@ class vec3{
 
 class mat3{
     constructor( a_m11, a_m21, a_m31, a_m12, a_m22, a_m32, a_m13, a_m23, a_m33){
-        this._m11 = a_m11; this._m21 = a_m21; this._m31 = a_m31;
-        this._m12 = a_m12; this._m22 = a_m22; this._m32 = a_m32;
-        this._m13 = a_m13; this._m23 = a_m23; this._m33 = a_m33;
+        if( a_m11 instanceof mat3){ //construct from another matrix
+            this._m11 = a_m11.m11; this._m21 = a_m11.m21; this._m31 = a_m11.m31;
+            this._m12 = a_m11.m12; this._m22 = a_m11.m22; this._m32 = a_m11.m32;
+            this._m13 = a_m11.m13; this._m23 = a_m11.m23; this._m33 = a_m11.m33;
+        }else if( a_m11 instanceof vec3 ){ //construct from three vectors
+            this._m11 = a_m11.x; this._m21 = a_m11.y; this._m31 = a_m11.z;
+            this._m12 = a_m21.x; this._m22 = a_m21.y; this._m32 = a_m21.z;
+            this._m13 = a_m31.x; this._m23 = a_m31.y; this._m33 = a_m31.z;
+        }
+        else{
+            this._m11 = a_m11; this._m21 = a_m21; this._m31 = a_m31;
+            this._m12 = a_m12; this._m22 = a_m22; this._m32 = a_m32;
+            this._m13 = a_m13; this._m23 = a_m23; this._m33 = a_m33;
+        }
     }
     get m11(){ return this._m11; }   get m12(){ return this._m12; }  get m13(){ return this._m13; }
     get m21(){ return this._m21; }   get m22(){ return this._m22; }  get m23(){ return this._m23; }
@@ -495,9 +506,9 @@ class mat3{
     set m21(a_m21){ this._m21 = a_m21; }   set m22(a_m22){ this._m22 = a_m22; }  set m23(a_m23){ this._m23 = a_m23; }
     set m31(a_m31){ this._m31 = a_m31; }   set m32(a_m32){ this._m32 = a_m32; }  set m33(a_m33){ this._m33 = a_m33; }
 
-    get xAxis(){ return new Array([this._m11, this.m_21, this._m31]); }
-    get yAxis(){ return new Array([this._m12, this.m_22, this._m32]); }
-    get zAxis(){ return new Array([this._m13, this.m_23, this._m33]); }
+    get xAxis(){ return new vec3(this._m11, this._m21, this._m31); }
+    get yAxis(){ return new vec3(this._m12, this._m22, this._m32); }
+    get zAxis(){ return new vec3(this._m13, this._m23, this._m33); }
 
     set xAxis(a_v3){ this._m11 = a_v3.x; this._m21 = a_v3.y; this._m31 = a_v3.z; }
     set yAxis(a_v3){ this._m12 = a_v3.x; this._m22 = a_v3.y; this._m32 = a_v3.z; }
@@ -525,20 +536,20 @@ class mat3{
     add(a_m3){
         return new mat3(
             this.m11 + a_m3.m11, this.m21 + a_m3.m21, this.m31 + a_m3.m31,
-            this.m12 + a_m3.m12, this.m22 + a_m3.m22, this.m23 + a_m3.m32,
+            this.m12 + a_m3.m12, this.m22 + a_m3.m22, this.m32 + a_m3.m32,
             this.m13 + a_m3.m13, this.m23 + a_m3.m23, this.m33 + a_m3.m33
         );
     }
 
     sub(a_m3){
         return new mat3(
-            this.m11 - a_m3.m11, this.m12 - a_m3.m12, this.m13 - a_m3.m13,
-            this.m21 - a_m3.m21, this.m22 - a_m3.m22, this.m23 - a_m3.m23,
-            this.m31 - a_m3.m31, this.m32 - a_m3.m32, this.m33 - a_m3.m33
+            this.m11 - a_m3.m11, this.m21 - a_m3.m21, this.m31 - a_m3.m31,
+            this.m21 - a_m3.m21, this.m22 - a_m3.m22, this.m32 - a_m3.m32,
+            this.m31 - a_m3.m31, this.m23 - a_m3.m23, this.m33 - a_m3.m33
         );
     }
 
-    mul(a_m3){
+    mul(a_val){
         if( a_val instanceof mat3){
             return new mat3(
                 this.m11 * a_val.m11 + this.m12 * a_val.m21 + this.m13 * a_val.m31,
@@ -558,9 +569,9 @@ class mat3{
                             this.m31 * a_val.x + this.m32 * a_val.y + this.m33 * a_val.z);
         }
         else{
-            return new mat3( this.m11 * a_m3, this.m12 * a_m3, this.m13 * a_m3,
-                             this.m21 * a_m3, this.m22 * a_m3, this.m23 * a_m3,
-                             this.m31 * a_m3, this.m32 * a_m3, this.m33 * a_m3 );
+            return new mat3( this.m11 * a_val, this.m21 * a_val, this.m31 * a_val,
+                             this.m12 * a_val, this.m22 * a_val, this.m32 * a_val,
+                             this.m13 * a_val, this.m23 * a_val, this.m33 * a_val );
         }
     }
 
@@ -577,15 +588,279 @@ class mat3{
     }
 
     inverse(){
-        var fDet = determinant();
+        var fDet = this.determinant();
         if( fDet > 0.0){
             var invDet = 1.0/ fDet;
-            
+            var mat = new mat3(this);
+            this.m11 = ( mat.m22 * mat.m33 - mat.m32 * mat.m23 ) * invDet;
+            this.m21 = ( mat.m31 * mat.m23 - mat.m21 * mat.m33 ) * invDet;
+            this.m31 = ( mat.m21 * mat.m32 - mat.m31 * mat.m22 ) * invDet;
+
+            this.m12 = ( mat.m32 * mat.m13 - mat.m12 * mat.m33 ) * invDet;
+            this.m22 = ( mat.m11 * mat.m33 - mat.m31 * mat.m13 ) * invDet;
+            this.m32 = ( mat.m31 * mat.m12 - mat.m11 * mat.m32 ) * invDet;
+
+            this.m13 = ( mat.m12 * mat.m23 - mat.m22 * mat.m13 ) * invDet;
+            this.m23 = ( mat.m21 * mat.m13 - mat.m11 * mat.m23 ) * invDet;
+            this.m33 = ( mat.m11 * mat.m22 - mat.m21 * mat.m12 ) * invDet;
         }
         else{
             return false;
         }
     }
 
+    rotateX(angle){
+        var co = Math.cos(angle);
+        var si = Math.sin(angle);
+        this.m11 = 1.0; this.m12 = 0.0; this.m13 = 0.0;
+        this.m21 = 0.0; this.m22 = co;  this.m23 = si;
+        this.m31 = 0.0; this.m32 = -si; this.m33 = co;
+    }
 
+    rotateY(angle){
+        var co = Math.cos(angle);
+        var si = Math.sin(angle);
+        this.m11 = co;  this.m12 = 0.0; this.m13 = si;
+        this.m21 = 0.0; this.m22 = 1.0; this.m23 = 0.0;
+        this.m31 = -si; this.m32 = 0.0; this.m33 = co;
+    }
+
+    rotateZ(angle){
+        var co = Math.cos(angle);
+        var si = Math.sin(angle);
+        this.m11 = co;  this.m12 = -si; this.m13 = 0.0;
+        this.m21 = si;  this.m22 =  co; this.m23 = 0.0;
+        this.m31 = 0.0; this.m32 = 0.0; this.m33 = 1.0;
+    }
+
+    scale(a_v3){
+        this.m11 = a_v3.x; this.m12 = 0.0; this.m13 = 0.0;
+        this.m21 = 0.0; this.m22 = a_v3.y; this.m23 = 0.0;
+        this.m31 = 0.0; this.m32 = 0.0; this.m33 = a_v3.z;
+    }
+}
+
+class mat4{
+    constructor( a_m11, a_m21, a_m31, a_m41, a_m12, a_m22, a_m32, a_m42, a_m13, a_m23, a_m33, a_m43, a_m14, a_m24, a_m34, a_m44){
+        if( a_m11 instanceof mat4){ //construct from another matrix
+            this._m11 = a_m11.m11; this._m21 = a_m11.m21; this._m31 = a_m11.m31; this._m41 = a_m11.m41;
+            this._m12 = a_m11.m12; this._m22 = a_m11.m22; this._m32 = a_m11.m32; this._m42 = a_m11.m42;
+            this._m13 = a_m11.m13; this._m23 = a_m11.m23; this._m33 = a_m11.m33; this._m43 = a_m11.m43;
+            this._m14 = a_m11.m14; this._m24 = a_m11.m24; this._m34 = a_m11,m34; this._m44 = a_m11.m44;
+        }else if( a_m11 instanceof mat3){ //construct from another matrix
+            this._m11 = a_m11.m11; this._m21 = a_m11.m21; this._m31 = a_m11.m31; this._m41 = 0.0;
+            this._m12 = a_m11.m12; this._m22 = a_m11.m22; this._m32 = a_m11.m32; this._m42 = 0.0;
+            this._m13 = a_m11.m13; this._m23 = a_m11.m23; this._m33 = a_m11.m33; this._m43 = 0.0;
+            this._m14 = 0.0;       this._m24 = 0.0;       this._m34 = 0.0;       this._m44 = 1.0;
+        }else if( a_m11 instanceof vec4 ){ //construct from three vectors
+            this._m11 = a_m11.x; this._m21 = a_m11.y; this._m31 = a_m11.z; this._m41 = a_m11.w;
+            this._m12 = a_m21.x; this._m22 = a_m21.y; this._m32 = a_m21.z; this._m42 = a_m21.w;
+            this._m13 = a_m31.x; this._m23 = a_m31.y; this._m33 = a_m31.z; this._m43 = a_m31.w;
+            this._m14 = a_m41.x; this._m24 = a_m41.y; this._m34 = a_m41.z; this._m44 = a_m41.w;
+        }else if( a_m11 instanceof vec3 ){ //construct from three vectors
+            this._m11 = a_m11.x; this._m21 = a_m11.y; this._m31 = a_m11.z; this._m41 = 0.0;
+            this._m12 = a_m21.x; this._m22 = a_m21.y; this._m32 = a_m21.z; this._m42 = 0.0;
+            this._m13 = a_m31.x; this._m23 = a_m31.y; this._m33 = a_m31.z; this._m43 = 0.0;
+            this._m14 = 0.0;     this._m24 = 0.0;     this._m34 = 0.0;     this._m44 = 1.0;
+        }
+        else{
+            this._m11 = a_m11; this._m21 = a_m21; this._m31 = a_m31; this._m41 = a_m41;
+            this._m12 = a_m12; this._m22 = a_m22; this._m32 = a_m32; this._m42 = a_m42;
+            this._m13 = a_m13; this._m23 = a_m23; this._m33 = a_m33; this._m43 = a_m43;
+            this._m14 = a_m14; this._m24 = a_m24; this._m34 = a_m34; this._m44 = a_m44;
+        }
+    }
+    get m11(){ return this._m11; }   get m12(){ return this._m12; }  get m13(){ return this._m13; }
+    get m21(){ return this._m21; }   get m22(){ return this._m22; }  get m23(){ return this._m23; }
+    get m31(){ return this._m31; }   get m32(){ return this._m32; }  get m33(){ return this._m33; }
+    
+    set m11(a_m11){ this._m11 = a_m11; }   set m12(a_m12){ this._m12 = a_m12; }  set m13(a_m13){ this._m13 = a_m13; }
+    set m21(a_m21){ this._m21 = a_m21; }   set m22(a_m22){ this._m22 = a_m22; }  set m23(a_m23){ this._m23 = a_m23; }
+    set m31(a_m31){ this._m31 = a_m31; }   set m32(a_m32){ this._m32 = a_m32; }  set m33(a_m33){ this._m33 = a_m33; }
+
+    get xAxis(){ return new vec4(this._m11, this._m21, this._m31, this._m41); }
+    get yAxis(){ return new vec4(this._m12, this._m22, this._m32, this._m42); }
+    get zAxis(){ return new vec4(this._m13, this._m23, this._m33, this._m43); }
+    get translation(){ return new vec4(this._m14, this._m24, this._m34, this._m44); }
+
+    set xAxis(a_v4){ this._m11 = a_v4.x; this._m21 = a_v4.y; this._m31 = a_v4.z; this._m41 = a_v4.w; }
+    set yAxis(a_v4){ this._m12 = a_v4.x; this._m22 = a_v4.y; this._m32 = a_v4.z; this._m42 = a_v4.w; }
+    set zAxis(a_v4){ this._m13 = a_v4.x; this._m23 = a_v4.y; this._m33 = a_v4.z; this._m43 = a_v4.w; }
+    set translation(a_v4){ this._m14 = a_v4.x; this._m24 = a_v4.y; this._m34 = a_v4.z; this._m44 = a_v4.w; }
+
+    asFloat32Array() {
+        return new Float32Array([this._m11, this._m21, this._m31, this._m41, 
+                                 this._m12, this._m22, this._m32, this._m42, 
+                                 this._m13, this._m23, this._m33, this._m43,
+                                 this._m14, this._m24, this._m34, this._m44]);
+    }
+    
+    identity(){
+        this.m11 = 1.0; this.m12 = 0.0; this.m13 = 0.0; this.m14 = 0.0;
+        this.m21 = 0.0; this.m22 = 1.0; this.m23 = 0.0; this.m24 = 0.0;
+        this.m31 = 0.0; this.m32 = 0.0; this.m33 = 1.0; this.m34 = 0.0;
+        this.m41 = 0.0; this.m42 = 0.0; this.m43 = 0.0; this.m44 = 1.0;
+    }
+
+    neg(){
+        return new mat4(
+            -this.m11, -this.m21, -this.m31, -this.m41,
+            -this.m12, -this.m22, -this.m32, -this.m42,
+            -this.m13, -this.m23, -this.m33  -this.m43,
+            -this.m14, -this.m24, -this.m34  -this.m44
+        );
+    }
+
+    add(a_m4){
+        return new mat4(
+            this.m11 + a_m4.m11, this.m21 + a_m4.m21, this.m31 + a_m4.m31, this.m41 + a_m4.m41,
+            this.m12 + a_m4.m12, this.m22 + a_m4.m22, this.m32 + a_m4.m32, this.m42 + a_m4.m42,
+            this.m13 + a_m4.m13, this.m23 + a_m4.m23, this.m33 + a_m4.m33, this.m43 + a_m4.m43,
+            this.m14 + a_m4.m14, this.m24 + a_m4.m24, this.m34 + a_m4.m34, this.m44 + a_m4.m44
+        );
+    }
+
+    sub(a_m4){
+        return new mat3(
+            this.m11 - a_m4.m11, this.m21 - a_m4.m21, this.m31 - a_m4.m31, this.m41 - a_m4.m41,
+            this.m12 - a_m4.m12, this.m22 - a_m4.m22, this.m32 - a_m4.m32, this.m42 - a_m4.m42,
+            this.m13 - a_m4.m13, this.m23 - a_m4.m23, this.m33 - a_m4.m33, this.m43 - a_m4.m43,
+            this.m14 - a_m4.m14, this.m24 - a_m4.m24, this.m34 - a_m4.m34, this.m44 - a_m4.m44
+        );
+    }
+
+    mul(a_val){
+        if( a_val instanceof mat3){
+            return new mat3(
+                this.m11 * a_val.m11 + this.m12 * a_val.m21 + this.m13 * a_val.m31 + this.m14 * a_val.m41,
+                this.m21 * a_val.m11 + this.m22 * a_val.m21 + this.m23 * a_val.m31 + this.m24 * a_val.m41,
+                this.m31 * a_val.m11 + this.m32 * a_val.m21 + this.m33 * a_val.m31,+ this.m34 * a_val.m41,
+                this.m41 * a_val.m11 + this.m42 * a_val.m21 + this.m43 * a_val.m31,+ this.m44 * a_val.m41,
+
+                this.m11 * a_val.m12 + this.m12 * a_val.m22 + this.m13 * a_val.m32 + this.m14 * a_val.m42,
+                this.m21 * a_val.m12 + this.m22 * a_val.m22 + this.m23 * a_val.m32 + this.m24 * a_val.m42,
+                this.m31 * a_val.m12 + this.m32 * a_val.m22 + this.m33 * a_val.m32 + this.m34 * a_val.m42,
+                this.m41 * a_val.m12 + this.m42 * a_val.m22 + this.m43 * a_val.m32 + this.m44 * a_val.m42,
+
+                this.m11 * a_val.m13 + this.m12 * a_val.m23 + this.m13 * a_val.m33 + this.m14 * a_val.m43,
+                this.m21 * a_val.m13 + this.m22 * a_val.m23 + this.m23 * a_val.m33 + this.m24 * a_val.m43,
+                this.m31 * a_val.m13 + this.m32 * a_val.m23 + this.m33 * a_val.m33 + this.m34 * a_val.m43,
+                this.m41 * a_val.m13 + this.m42 * a_val.m23 + this.m43 * a_val.m33 + this.m44 * a_val.m43,
+
+                this.m11 * a_val.m14 + this.m12 * a_val.m24 + this.m13 * a_val.m34 + this.m14 * a_val.m44,
+                this.m21 * a_val.m14 + this.m22 * a_val.m24 + this.m23 * a_val.m34 + this.m24 * a_val.m44,
+                this.m31 * a_val.m14 + this.m32 * a_val.m24 + this.m33 * a_val.m34 + this.m34 * a_val.m44,
+                this.m41 * a_val.m14 + this.m42 * a_val.m24 + this.m43 * a_val.m34 + this.m44 * a_val.m44,
+            );
+        }
+        else if( a_val instanceof vec4){
+            return new vec4(this.m11 * a_val.x + this.m12 * a_val.y + this.m13 * a_val.z + this.m14 * a_val.w,
+                            this.m21 * a_val.x + this.m22 * a_val.y + this.m23 * a_val.z + this.m24 * a_val.w,
+                            this.m31 * a_val.x + this.m32 * a_val.y + this.m33 * a_val.z + this.m34 * a_val.w,
+                            this.m31 * a_val.x + this.m32 * a_val.y + this.m33 * a_val.z + this.m44 * a_val.w);
+        }
+        else{
+            return new mat4( this.m11 * a_val, this.m21 * a_val, this.m31 * a_val, this.m41 * a_val,
+                             this.m12 * a_val, this.m22 * a_val, this.m32 * a_val, this.m42 * a_val,
+                             this.m13 * a_val, this.m23 * a_val, this.m33 * a_val, this.m43 * a_val,
+                             this.m14 * a_val, this.m24 * a_val, this.m34 * a_val, this.m44 * a_val, );
+        }
+    }
+
+    transpose(){
+        var k = this.m12; this.m12 = this.m21; this.m21 = k;
+        k = this.m13; this.m13 = this.m31; this.m31 = k;
+        k = this.m32; this.m32 = this.m23; this.m23 = k;
+    }
+
+    determinant(){
+        return (this.m11 * ( this.m22 * this.m33 - this.m23 * this.m32 ) +
+                this.m21 * ( this.m32 * this.m13 - this.m12 * this.m33 ) +
+                this.m31 * ( this.m12 * this.m23 - this.m22 * this.m13 ) )
+    }
+
+    inverse(){
+        var fDet = this.determinant();
+        if( fDet > 0.0){
+            var invDet = 1.0/ fDet;
+            var mat = new mat3(this);
+            this.m11 = ( mat.m22 * mat.m33 - mat.m32 * mat.m23 ) * invDet;
+            this.m21 = ( mat.m31 * mat.m23 - mat.m21 * mat.m33 ) * invDet;
+            this.m31 = ( mat.m21 * mat.m32 - mat.m31 * mat.m22 ) * invDet;
+            this.m41 = 0.0;
+
+            this.m12 = ( mat.m32 * mat.m13 - mat.m12 * mat.m33 ) * invDet;
+            this.m22 = ( mat.m11 * mat.m33 - mat.m31 * mat.m13 ) * invDet;
+            this.m32 = ( mat.m31 * mat.m12 - mat.m11 * mat.m32 ) * invDet;
+            this.m42 = 0.0;
+
+            this.m13 = ( mat.m12 * mat.m23 - mat.m22 * mat.m13 ) * invDet;
+            this.m23 = ( mat.m21 * mat.m13 - mat.m11 * mat.m23 ) * invDet;
+            this.m33 = ( mat.m11 * mat.m22 - mat.m21 * mat.m12 ) * invDet;
+            this.m43 = 0.0;
+
+            this.m14 = (mat.m12 * (mat.m33 * mat.m24 - mat.m23 * mat.m34) +
+				        mat.m22 * (mat.m13 * mat.m34 - mat.m33 * mat.m14) +
+				        mat.m32 * (mat.m23 * mat.m14 - mat.m13 * mat.m24)) * fInvDet;
+		    this.m24 = (mat.m11 * (mat.m23 * mat.m34 - mat.m33 * mat.m24) +
+				        mat.m21 * (mat.m33 * mat.m14 - mat.m13 * mat.m34) +
+				        mat.m31 * (mat.m13 * mat.m24 - mat.m23 * mat.m14)) * fInvDet;
+		    this.m34 = (mat.m11 * (mat.m32 * mat.m24 - mat.m22 * mat.m34) +
+				        mat.m21 * (mat.m12 * mat.m34 - mat.m32 * mat.m14) +
+				        mat.m31 * (mat.m22 * mat.m14 - mat.m12 * mat.m24)) * fInvDet;
+		    this.m44 = 1.0;
+        }
+        else{
+            return false;
+        }
+    }
+
+    rotateX(angle){
+        var co = Math.cos(angle);
+        var si = Math.sin(angle);
+        this.m11 = 1.0; this.m12 = 0.0; this.m13 = 0.0; this.m14 = 0.0;
+        this.m21 = 0.0; this.m22 = co;  this.m23 = si;  this.m24 = 0.0;
+        this.m31 = 0.0; this.m32 = -si; this.m33 = co;  this.m34 = 0.0;
+        this.m41 = 0.0; this.m42 = 0.0; this.m43 = 0.0; this.m44 = 1.0;
+    }
+
+    rotateY(angle){
+        var co = Math.cos(angle);
+        var si = Math.sin(angle);
+        this.m11 = co;  this.m12 = 0.0; this.m13 = si; this.m14 = 0.0;
+        this.m21 = 0.0; this.m22 = 1.0; this.m23 = 0.0; this.m24 = 0.0;
+        this.m31 = -si; this.m32 = 0.0; this.m33 = co; this.m34 = 0.0;
+        this.m41 = 0.0; this.m43 = 0.0; this.m43 = 0.0; this.m44 = 1.0;
+    }
+
+    rotateZ(angle){
+        var co = Math.cos(angle);
+        var si = Math.sin(angle);
+        this.m11 = co;  this.m12 = -si; this.m13 = 0.0; this.m14 = 0.0;
+        this.m21 = si;  this.m22 =  co; this.m23 = 0.0; this.m24 = 0.0;
+        this.m31 = 0.0; this.m32 = 0.0; this.m33 = 1.0; this.m34 = 0.0;
+        this.m41 = 0.0; this.m42 = 0.0; this.m43 = 0.0; this.m44 = 1.0;
+    }
+
+    scale(a_v3){
+        this.m11 = a_v3.x; this.m12 = 0.0;    this.m13 = 0.0;    this.m14 = 0.0;
+        this.m21 = 0.0;    this.m22 = a_v3.y; this.m23 = 0.0;    this.m24 = 0.0;
+        this.m31 = 0.0;    this.m32 = 0.0;    this.m33 = a_v3.z; this.m34 = 0.0;
+        this.m41 = 0.0;    this.m42 = 0.0;    this.m43 = 0.0;    this.m44 = 1.0;
+    }
+
+    projection( a_fov, a_aspect, a_zNear, a_zFar){
+        var cotan = 1.0 / Math.tan(a_fov * 0.5);
+        if( Math.abs( fZFar-fZNear ) > 0.01 )
+        {
+            var h = cotan;
+            var w = h/fAspectRatio;	
+            var r = 1.0/(fZFar-fZNear);
+            
+            this.m11 =   w; this.m21 = 0.0; this.m31 = 0.0;                     this.m41 =  0.0;
+            this.m12 = 0.0; this.m22 =   h; this.m32 =  0.0;                    this.m42 =  0.0;
+            this.m13 = 0.0; this.m23 = 0.0; this.m33 = -(fZFar+fZNear)*r;       this.m43 = -1.0;
+            this.m14 = 0.0; this.m24 = 0.0; this.m34 = -(2.0*fZFar*fZNear)*r;   this.m44 =  0.0;
+        }
+    }
 }

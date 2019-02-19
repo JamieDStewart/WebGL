@@ -26,26 +26,6 @@ var FS_Source =
     '}\n';
 
 /**
- * Vector4 class
- *    No functionality enabled yet.
- */
-class vec4{
-    /**
-     * 
-     * @param {number} a_x 
-     * @param {number} a_y 
-     * @param {number} a_z 
-     * @param {number} a_w 
-     */
-    constructor(a_x, a_y, a_z, a_w){
-        this.x = a_x;
-        this.y = a_y;
-        this.z = a_z;
-        this.w = a_w;
-    }
-}
-
-/**
  * Base vertex class 
  *      supports position, colour and texture coordinates
  */
@@ -129,7 +109,18 @@ function main() {
     var v2b = new vec2(5,5);
 
     var v2c = v2a.add(2);
-   
+    var m3 = new mat3(1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0);
+    var mOther = new mat3(0.3,0.2,0.3,0.0,1.0,0.0,0.8,0.9,1.0);
+    var m3_2 = new mat3(m3);
+
+    var c = m3.mul(m3_2);
+    c.inverse();
+    mOther.transpose();
+    m3_2 = new mat3(mOther);
+    mOther.inverse();
+    c = m3_2.mul(mOther);
+    m3 = mOther.mul(m3_2);
+    
     //grab the canvas element from the document
     var canvas = document.getElementById('WebGL');
     canvas.width = 1920;
