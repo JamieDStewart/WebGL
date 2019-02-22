@@ -14,7 +14,7 @@ The only other artefact to mention on this tutorial is that I prefer to use inte
 Interleaved buffers will need to be transformed from the Vertex structure of position, normal, etc... into a float32 array to send to OpenGL. This is the purpose of the VertexDataAsRayArray function.  
 
 My lack of familiarity with javascript and coming from a C/C++ backgound has led me to implement this fucntion as follows
-'''javascript
+```javascript
 function VertexDataAsRawArray(parameter) {
     var rawdata = [];
     var vt = null;
@@ -27,6 +27,6 @@ function VertexDataAsRawArray(parameter) {
     return rawdata;
 
 }
-'''
+```
   
 If there is a better way of performing this function that is more akin to C/C++ syntax of simply grabbing a pointer to the start of the object in memory then I would love to know how to accomplish that as the for loop approach seems slightly cumbersome.
