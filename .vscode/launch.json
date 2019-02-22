@@ -16,7 +16,7 @@
             "type": "chrome",
             "request": "launch",
             "runtimeArgs": ["--allow-file-access-from-files"],
-            "file": "${workspaceFolder}/04_Hello_Maths/index.html"
+            "file": "${workspaceFolder}/03_Hello_Texture/index.html"
             
         },
     ]
