@@ -670,13 +670,15 @@ class mat4{
             this._m14 = a_m14; this._m24 = a_m24; this._m34 = a_m34; this._m44 = a_m44;
         }
     }
-    get m11(){ return this._m11; }   get m12(){ return this._m12; }  get m13(){ return this._m13; }
-    get m21(){ return this._m21; }   get m22(){ return this._m22; }  get m23(){ return this._m23; }
-    get m31(){ return this._m31; }   get m32(){ return this._m32; }  get m33(){ return this._m33; }
+    get m11(){ return this._m11; }   get m12(){ return this._m12; }  get m13(){ return this._m13; } get m14(){ return this._m14; }
+    get m21(){ return this._m21; }   get m22(){ return this._m22; }  get m23(){ return this._m23; } get m24(){ return this._m24; }
+    get m31(){ return this._m31; }   get m32(){ return this._m32; }  get m33(){ return this._m33; } get m34(){ return this._m34; }
+    get m41(){ return this._m41; }   get m42(){ return this._m42; }  get m43(){ return this._m43; } get m44(){ return this._m44; }
     
-    set m11(a_m11){ this._m11 = a_m11; }   set m12(a_m12){ this._m12 = a_m12; }  set m13(a_m13){ this._m13 = a_m13; }
-    set m21(a_m21){ this._m21 = a_m21; }   set m22(a_m22){ this._m22 = a_m22; }  set m23(a_m23){ this._m23 = a_m23; }
-    set m31(a_m31){ this._m31 = a_m31; }   set m32(a_m32){ this._m32 = a_m32; }  set m33(a_m33){ this._m33 = a_m33; }
+    set m11(a_m11){ this._m11 = a_m11; }   set m12(a_m12){ this._m12 = a_m12; }  set m13(a_m13){ this._m13 = a_m13; } set m14(a_m14){ this._m14 = a_m14; }
+    set m21(a_m21){ this._m21 = a_m21; }   set m22(a_m22){ this._m22 = a_m22; }  set m23(a_m23){ this._m23 = a_m23; } set m24(a_m24){ this._m24 = a_m24; }
+    set m31(a_m31){ this._m31 = a_m31; }   set m32(a_m32){ this._m32 = a_m32; }  set m33(a_m33){ this._m33 = a_m33; } set m34(a_m34){ this._m34 = a_m34; }
+    set m41(a_m41){ this._m41 = a_m41; }   set m42(a_m42){ this._m42 = a_m42; }  set m43(a_m43){ this._m43 = a_m43; } set m44(a_m44){ this._m44 = a_m44; }
 
     get xAxis(){ return new vec4(this._m11, this._m21, this._m31, this._m41); }
     get yAxis(){ return new vec4(this._m12, this._m22, this._m32, this._m42); }
@@ -721,7 +723,7 @@ class mat4{
     }
 
     sub(a_m4){
-        return new mat3(
+        return new mat4(
             this.m11 - a_m4.m11, this.m21 - a_m4.m21, this.m31 - a_m4.m31, this.m41 - a_m4.m41,
             this.m12 - a_m4.m12, this.m22 - a_m4.m22, this.m32 - a_m4.m32, this.m42 - a_m4.m42,
             this.m13 - a_m4.m13, this.m23 - a_m4.m23, this.m33 - a_m4.m33, this.m43 - a_m4.m43,
@@ -730,8 +732,8 @@ class mat4{
     }
 
     mul(a_val){
-        if( a_val instanceof mat3){
-            return new mat3(
+        if( a_val instanceof mat4){
+            return new mat4(
                 this.m11 * a_val.m11 + this.m12 * a_val.m21 + this.m13 * a_val.m31 + this.m14 * a_val.m41,
                 this.m21 * a_val.m11 + this.m22 * a_val.m21 + this.m23 * a_val.m31 + this.m24 * a_val.m41,
                 this.m31 * a_val.m11 + this.m32 * a_val.m21 + this.m33 * a_val.m31,+ this.m34 * a_val.m41,
@@ -757,7 +759,7 @@ class mat4{
             return new vec4(this.m11 * a_val.x + this.m12 * a_val.y + this.m13 * a_val.z + this.m14 * a_val.w,
                             this.m21 * a_val.x + this.m22 * a_val.y + this.m23 * a_val.z + this.m24 * a_val.w,
                             this.m31 * a_val.x + this.m32 * a_val.y + this.m33 * a_val.z + this.m34 * a_val.w,
-                            this.m31 * a_val.x + this.m32 * a_val.y + this.m33 * a_val.z + this.m44 * a_val.w);
+                            this.m41 * a_val.x + this.m42 * a_val.y + this.m43 * a_val.z + this.m44 * a_val.w);
         }
         else{
             return new mat4( this.m11 * a_val, this.m21 * a_val, this.m31 * a_val, this.m41 * a_val,
@@ -783,7 +785,7 @@ class mat4{
         var fDet = this.determinant();
         if( fDet > 0.0){
             var invDet = 1.0/ fDet;
-            var mat = new mat3(this);
+            var mat = new mat4(this);
             this.m11 = ( mat.m22 * mat.m33 - mat.m32 * mat.m23 ) * invDet;
             this.m21 = ( mat.m31 * mat.m23 - mat.m21 * mat.m33 ) * invDet;
             this.m31 = ( mat.m21 * mat.m32 - mat.m31 * mat.m22 ) * invDet;
@@ -849,18 +851,48 @@ class mat4{
         this.m41 = 0.0;    this.m42 = 0.0;    this.m43 = 0.0;    this.m44 = 1.0;
     }
 
+    orthonormalise(){
+        var xBasis = this.xAxis();
+	    var yBasis = this.yAxis();
+	    var zBasis = this.zAxis();
+	
+	    yBasis = yBasis - ( zBasis * Dot( zBasis, yBasis ) );
+	    yBasis.Normalise();
+	    xBasis = Cross( yBasis, zBasis);
+	    xBasis.Normalise();
+
+        this.xAxis(xBasis);
+        this.yAxis(yBasis);
+        this.zAxis(zBasis);
+    }
+
     projection( a_fov, a_aspect, a_zNear, a_zFar){
         var cotan = 1.0 / Math.tan(a_fov * 0.5);
-        if( Math.abs( fZFar-fZNear ) > 0.01 )
+        if( Math.abs( a_zFar-a_zNear ) > 0.01 )
         {
             var h = cotan;
-            var w = h/fAspectRatio;	
-            var r = 1.0/(fZFar-fZNear);
+            var w = h/a_aspect;	
+            var r = 1.0/(a_zFar-a_zNear);
             
             this.m11 =   w; this.m21 = 0.0; this.m31 = 0.0;                     this.m41 =  0.0;
             this.m12 = 0.0; this.m22 =   h; this.m32 =  0.0;                    this.m42 =  0.0;
-            this.m13 = 0.0; this.m23 = 0.0; this.m33 = -(fZFar+fZNear)*r;       this.m43 = -1.0;
-            this.m14 = 0.0; this.m24 = 0.0; this.m34 = -(2.0*fZFar*fZNear)*r;   this.m44 =  0.0;
+            this.m13 = 0.0; this.m23 = 0.0; this.m33 = -(a_zFar+a_zNear)*r;     this.m43 = -1.0;
+            this.m14 = 0.0; this.m24 = 0.0; this.m34 = -(2.0*a_zFar*a_zNear)*r; this.m44 =  0.0;
         }
+    }
+
+    orthographic(a_left, a_right, a_top, a_bottom, a_near, a_far){
+        var deltaX = a_right - a_left;
+        var deltaY = a_top - a_bottom;
+        var deltaZ = a_far - a_near;
+
+        this.m11 = 2.0/deltaX;  this.m21 = 0.0;         this.m31 = 0.0;         this.m41 = 0.0;
+        this.m12 = 0.0;         this.m22 = 2.0/deltaY;  this.m32 = 0.0;         this.m42 = 0.0;
+        this.m13 = 0.0;         this.m23 = 0.0;         this.m33 = -2.0/deltaZ; this.m43 = 0.0;
+        
+        this.m14 = -((a_right + a_left)/deltaX);
+        this.m24 = -((a_top + a_bottom)/deltaY);
+        this.m34 = -((a_far + a_near)/deltaZ);
+        this.m44 = 1.0;
     }
 }

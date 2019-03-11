@@ -7,10 +7,13 @@ var VS_Source =
     'in vec2 texCoord;\n'+
     'out vec4 vColour;\n'+
     'out vec2 vUV;\n'+
+    'uniform mat4 projectionMatrix;\n'+
+    'uniform mat4 viewMatrix;\n' +
+    'uniform mat4 modelMatrix;\n'+
     'void main() {\n' +
     'vColour = colour;\n'+
     'vUV = texCoord;\n'+
-    'gl_Position = position;\n' +
+    'gl_Position = projectionMatrix * viewMatrix * modelMatrix * position;\n' +
     '}\n';
   
 //Fragment shader source
@@ -105,22 +108,6 @@ function setup(){
 //Create the main entry point for this application
 function main() {
 
-    var v2a = new vec2(10,10);
-    var v2b = new vec2(5,5);
-
-    var v2c = v2a.add(2);
-    var m3 = new mat3(1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0);
-    var mOther = new mat3(0.3,0.2,0.3,0.0,1.0,0.0,0.8,0.9,1.0);
-    var m3_2 = new mat3(m3);
-
-    var c = m3.mul(m3_2);
-    c.inverse();
-    mOther.transpose();
-    m3_2 = new mat3(mOther);
-    mOther.inverse();
-    c = m3_2.mul(mOther);
-    m3 = mOther.mul(m3_2);
-    
     //grab the canvas element from the document
     var canvas = document.getElementById('WebGL');
     canvas.width = 1920;
@@ -145,10 +132,10 @@ function main() {
     //The shaders have been loaded and linked into a shader program
     //create a vertex structure and fill it with the appropriate data
     var vertex_structure = [ 
-        new Vertex( new vec4(-0.5, -0.5, 0, 1.0), new vec4(1.0 ,0   ,0   , 1.0), new vec2(0.0, 1.0)),
-        new Vertex( new vec4(-0.5,  0.5, 0, 1.0), new vec4(0   ,1.0 ,0   , 1.0), new vec2(0.0, 0.0)),
-        new Vertex( new vec4( 0.5,  0.5, 0, 1.0), new vec4(0   ,0   ,1.0 , 1.0), new vec2(1.0, 0.0)),
-        new Vertex( new vec4( 0.5, -0.5, 0, 1.0), new vec4(1.0 ,1.0 ,1.0 , 1.0), new vec2(1.0, 1.0))];
+        new Vertex( new vec4(-2.5, -1.5, -4, 1.0), new vec4(1.0 ,0   ,0   , 1.0), new vec2(0.0, 1.0)),
+        new Vertex( new vec4(-0.5,  0.5, -1, 1.0), new vec4(0   ,1.0 ,0   , 1.0), new vec2(0.0, 0.0)),
+        new Vertex( new vec4( 0.5,  0.5, -4, 1.0), new vec4(0   ,0   ,1.0 , 1.0), new vec2(1.0, 0.0)),
+        new Vertex( new vec4( 0.5, -0.5, -1, 1.0), new vec4(1.0 ,1.0 ,1.0 , 1.0), new vec2(1.0, 1.0))];
     
         //indices to pass to opengl for vertex draw order    
     var indices = [ 0, 2, 1, 0, 3, 2];
@@ -206,12 +193,32 @@ function main() {
     gl.enable(gl.CULL_FACE);
     gl.cullFace(gl.BACK);
     
+    //set up projection matrix
+    var projectionMatrix = new mat4(1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0);
+    projectionMatrix.projection( Math.PI * 0.25, canvas.width/canvas.height, 0.1, 1000.0);
+
+    var viewMatrix = new mat4(1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0);
+    var modelMatrix = new mat4(1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0);
+
+    var modelPos = modelMatrix.mul(vertex_structure[0].position);
+    var viewPos = viewMatrix.mul(modelPos);
+    var projectedPos = projectionMatrix.mul(viewPos);
+
     //use our shader program to draw the scene
     gl.useProgram(program);
     //get our texture uniform and tell it to used texture 0
     var diffuseUniform = gl.getUniformLocation(program, "diffuse");
     gl.uniform1i(diffuseUniform, 0);
+    //set up matrix uniforms
+    var projMatrixUniform = gl.getUniformLocation(program, "projectionMatrix");
+    gl.uniformMatrix4fv( projMatrixUniform, false, projectionMatrix.asFloat32Array());
 
+    var viewMatrixUniform = gl.getUniformLocation(program, "viewMatrix");
+    gl.uniformMatrix4fv( viewMatrixUniform, false, viewMatrix.asFloat32Array());
+
+    var modelMatrixUniform = gl.getUniformLocation(program, "modelMatrix");
+    gl.uniformMatrix4fv( modelMatrixUniform, false, modelMatrix.asFloat32Array());
+    
     gl.bindVertexArray(vao);
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
 
