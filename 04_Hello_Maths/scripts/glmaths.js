@@ -339,7 +339,7 @@ class vec3{
       * @param {vec4|number} a_val 
       * @return {vec4} returns a new vector with the subtractive value
       */
-     sub( a_val){ if( a_val instanceof vec4){ return new vec3( this.x - a_val.x, this.y - a_val.y, this.z - a_val.z, this.w - a_val.w); }else{ return new vec4( this.x - a_val, this.y - a_val, this.z - a_val, this.w - a_val); } }
+     sub( a_val){ if( a_val instanceof vec4){ return new vec4( this.x - a_val.x, this.y - a_val.y, this.z - a_val.z, this.w - a_val.w); }else{ return new vec4( this.x - a_val, this.y - a_val, this.z - a_val, this.w - a_val); } }
      /**
       * Function to multiply value with a vector
       * @param {vec4|number} a_val 
@@ -519,10 +519,10 @@ class mat3{
             this._m12, this._m22, this._m23, this._m13, this._m23, this._m33]);
     }
     
-    identity(){
-        this.m11 = 1.0; this.m12 = 0.0; this.m13 = 0.0;
-        this.m21 = 0.0; this.m22 = 1.0; this.m23 = 0.0;
-        this.m31 = 0.0; this.m32 = 0.0; this.m33 = 1.0;
+    static Identity(){
+        return new mat4( 1.0, 0.0, 0.0,
+                         0.0, 1.0, 0.0,
+                         0.0, 0.0, 1.0);
     }
 
     neg(){
@@ -609,6 +609,21 @@ class mat3{
         }
     }
 
+    orthonormalize(){
+        var xBasis = this.xAxis;
+	    var yBasis = this.yAxis;
+	    var zBasis = this.zAxis;
+	
+	    yBasis = yBasis.sub( zBasis.mul(zBasis.dot( yBasis ) ));
+	    yBasis.normalize();
+	    xBasis = yBasis.cross(zBasis);
+	    xBasis.normalize();
+
+        this.xAxis = xBasis;
+        this.yAxis = yBasis;
+        this.zAxis = zBasis;
+    }
+
     rotateX(angle){
         var co = Math.cos(angle);
         var si = Math.sin(angle);
@@ -638,6 +653,17 @@ class mat3{
         this.m21 = 0.0; this.m22 = a_v3.y; this.m23 = 0.0;
         this.m31 = 0.0; this.m32 = 0.0; this.m33 = a_v3.z;
     }
+
+    static lookAt( a_eyePos, a_lookAt, a_worldUp ){
+        var m3 = mat3.Identity();
+        var vFwd = a_lookAt.sub(a_eyePos);
+        vFwd.normalize();
+        m3.zAxis = vFwd;
+        m3.yAxis = a_worldUp;
+        m3.orthonormalize();
+        return m3;
+    }
+
 }
 
 class mat4{
@@ -646,7 +672,7 @@ class mat4{
             this._m11 = a_m11.m11; this._m21 = a_m11.m21; this._m31 = a_m11.m31; this._m41 = a_m11.m41;
             this._m12 = a_m11.m12; this._m22 = a_m11.m22; this._m32 = a_m11.m32; this._m42 = a_m11.m42;
             this._m13 = a_m11.m13; this._m23 = a_m11.m23; this._m33 = a_m11.m33; this._m43 = a_m11.m43;
-            this._m14 = a_m11.m14; this._m24 = a_m11.m24; this._m34 = a_m11,m34; this._m44 = a_m11.m44;
+            this._m14 = a_m11.m14; this._m24 = a_m11.m24; this._m34 = a_m11.m34; this._m44 = a_m11.m44;
         }else if( a_m11 instanceof mat3){ //construct from another matrix
             this._m11 = a_m11.m11; this._m21 = a_m11.m21; this._m31 = a_m11.m31; this._m41 = 0.0;
             this._m12 = a_m11.m12; this._m22 = a_m11.m22; this._m32 = a_m11.m32; this._m42 = 0.0;
@@ -697,11 +723,11 @@ class mat4{
                                  this._m14, this._m24, this._m34, this._m44]);
     }
     
-    identity(){
-        this.m11 = 1.0; this.m12 = 0.0; this.m13 = 0.0; this.m14 = 0.0;
-        this.m21 = 0.0; this.m22 = 1.0; this.m23 = 0.0; this.m24 = 0.0;
-        this.m31 = 0.0; this.m32 = 0.0; this.m33 = 1.0; this.m34 = 0.0;
-        this.m41 = 0.0; this.m42 = 0.0; this.m43 = 0.0; this.m44 = 1.0;
+    static Identity(){
+        return new mat4( 1.0, 0.0, 0.0, 0.0,
+                         0.0, 1.0, 0.0, 0.0,
+                         0.0, 0.0, 1.0, 0.0,
+                         0.0, 0.0, 0.0, 1.0);
     }
 
     neg(){
@@ -803,13 +829,13 @@ class mat4{
 
             this.m14 = (mat.m12 * (mat.m33 * mat.m24 - mat.m23 * mat.m34) +
 				        mat.m22 * (mat.m13 * mat.m34 - mat.m33 * mat.m14) +
-				        mat.m32 * (mat.m23 * mat.m14 - mat.m13 * mat.m24)) * fInvDet;
+				        mat.m32 * (mat.m23 * mat.m14 - mat.m13 * mat.m24)) * invDet;
 		    this.m24 = (mat.m11 * (mat.m23 * mat.m34 - mat.m33 * mat.m24) +
 				        mat.m21 * (mat.m33 * mat.m14 - mat.m13 * mat.m34) +
-				        mat.m31 * (mat.m13 * mat.m24 - mat.m23 * mat.m14)) * fInvDet;
+				        mat.m31 * (mat.m13 * mat.m24 - mat.m23 * mat.m14)) * invDet;
 		    this.m34 = (mat.m11 * (mat.m32 * mat.m24 - mat.m22 * mat.m34) +
 				        mat.m21 * (mat.m12 * mat.m34 - mat.m32 * mat.m14) +
-				        mat.m31 * (mat.m22 * mat.m14 - mat.m12 * mat.m24)) * fInvDet;
+				        mat.m31 * (mat.m22 * mat.m14 - mat.m12 * mat.m24)) * invDet;
 		    this.m44 = 1.0;
         }
         else{
@@ -851,19 +877,19 @@ class mat4{
         this.m41 = 0.0;    this.m42 = 0.0;    this.m43 = 0.0;    this.m44 = 1.0;
     }
 
-    orthonormalise(){
-        var xBasis = this.xAxis();
-	    var yBasis = this.yAxis();
-	    var zBasis = this.zAxis();
+    orthonormalize(){
+        var xBasis = this.xAxis;
+	    var yBasis = this.yAxis;
+	    var zBasis = this.zAxis;
 	
-	    yBasis = yBasis - ( zBasis * Dot( zBasis, yBasis ) );
-	    yBasis.Normalise();
-	    xBasis = Cross( yBasis, zBasis);
-	    xBasis.Normalise();
+	    yBasis = yBasis.sub( zBasis.mul(zBasis.dot( yBasis ) ));
+	    yBasis.normalize();
+	    xBasis = yBasis.cross(zBasis);
+	    xBasis.normalize();
 
-        this.xAxis(xBasis);
-        this.yAxis(yBasis);
-        this.zAxis(zBasis);
+        this.xAxis = xBasis;
+        this.yAxis = yBasis;
+        this.zAxis = zBasis;
     }
 
     projection( a_fov, a_aspect, a_zNear, a_zFar){
@@ -895,4 +921,26 @@ class mat4{
         this.m34 = -((a_far + a_near)/deltaZ);
         this.m44 = 1.0;
     }
+
+    /**
+     * This function mimics the gluLookAt function found here https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml
+     * This function returns a view matrix (the inverse of the camera matrix)
+     * @param {vec4} a_eyePos - position of the viewer, camera in the world space
+     * @param {vec4} a_lookAt - the location that we wish to look at
+     * @param {vec4} a_worldUp - the relative up direction of the world in relation to the camera, or the direction you want up to be.
+     */
+    static lookAt( a_eyePos, a_lookAt, a_worldUp ){
+        var m4 = mat4.Identity();
+        //as this is the view matrix it's not the vector from the eye to the lookat point we want it's the reverse of this
+        //transforming from world space to viewspace.
+        var vFwd = a_eyePos.sub(a_lookAt);
+        vFwd.normalize();
+        m4.zAxis = vFwd;
+        m4.yAxis = a_worldUp;
+        m4.translation = a_eyePos;
+        m4.orthonormalize();
+        m4.inverse();
+        return m4;
+    }
+
 }

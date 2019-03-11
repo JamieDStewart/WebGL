@@ -132,10 +132,10 @@ function main() {
     //The shaders have been loaded and linked into a shader program
     //create a vertex structure and fill it with the appropriate data
     var vertex_structure = [ 
-        new Vertex( new vec4(-2.5, -1.5, -4, 1.0), new vec4(1.0 ,0   ,0   , 1.0), new vec2(0.0, 1.0)),
-        new Vertex( new vec4(-0.5,  0.5, -1, 1.0), new vec4(0   ,1.0 ,0   , 1.0), new vec2(0.0, 0.0)),
-        new Vertex( new vec4( 0.5,  0.5, -4, 1.0), new vec4(0   ,0   ,1.0 , 1.0), new vec2(1.0, 0.0)),
-        new Vertex( new vec4( 0.5, -0.5, -1, 1.0), new vec4(1.0 ,1.0 ,1.0 , 1.0), new vec2(1.0, 1.0))];
+        new Vertex( new vec4(-2.5, -2.5, 0, 1.0), new vec4(1.0 ,0   ,0   , 1.0), new vec2(0.0, 1.0)),
+        new Vertex( new vec4(-2.5,  2.5, 0, 1.0), new vec4(0   ,1.0 ,0   , 1.0), new vec2(0.0, 0.0)),
+        new Vertex( new vec4( 2.5,  2.5, 0, 1.0), new vec4(0   ,0   ,1.0 , 1.0), new vec2(1.0, 0.0)),
+        new Vertex( new vec4( 2.5, -2.5, 0, 1.0), new vec4(1.0 ,1.0 ,1.0 , 1.0), new vec2(1.0, 1.0))];
     
         //indices to pass to opengl for vertex draw order    
     var indices = [ 0, 2, 1, 0, 3, 2];
@@ -194,15 +194,12 @@ function main() {
     gl.cullFace(gl.BACK);
     
     //set up projection matrix
-    var projectionMatrix = new mat4(1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0);
+    var projectionMatrix = mat4.Identity();
     projectionMatrix.projection( Math.PI * 0.25, canvas.width/canvas.height, 0.1, 1000.0);
 
-    var viewMatrix = new mat4(1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0);
-    var modelMatrix = new mat4(1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0);
-
-    var modelPos = modelMatrix.mul(vertex_structure[0].position);
-    var viewPos = viewMatrix.mul(modelPos);
-    var projectedPos = projectionMatrix.mul(viewPos);
+    var viewMatrix = mat4.lookAt( new vec4( 10.0, 10.0, 10.0, 1.0), new vec4( 0, 0, 0, 1.0), new vec4( 0.0, 1.0, 0.0, 0.0));
+    //viewMatrix.inverse();
+    var modelMatrix = mat4.Identity();
 
     //use our shader program to draw the scene
     gl.useProgram(program);
