@@ -762,8 +762,8 @@ class mat4{
             return new mat4(
                 this.m11 * a_val.m11 + this.m12 * a_val.m21 + this.m13 * a_val.m31 + this.m14 * a_val.m41,
                 this.m21 * a_val.m11 + this.m22 * a_val.m21 + this.m23 * a_val.m31 + this.m24 * a_val.m41,
-                this.m31 * a_val.m11 + this.m32 * a_val.m21 + this.m33 * a_val.m31,+ this.m34 * a_val.m41,
-                this.m41 * a_val.m11 + this.m42 * a_val.m21 + this.m43 * a_val.m31,+ this.m44 * a_val.m41,
+                this.m31 * a_val.m11 + this.m32 * a_val.m21 + this.m33 * a_val.m31 + this.m34 * a_val.m41,
+                this.m41 * a_val.m11 + this.m42 * a_val.m21 + this.m43 * a_val.m31 + this.m44 * a_val.m41,
 
                 this.m11 * a_val.m12 + this.m12 * a_val.m22 + this.m13 * a_val.m32 + this.m14 * a_val.m42,
                 this.m21 * a_val.m12 + this.m22 * a_val.m22 + this.m23 * a_val.m32 + this.m24 * a_val.m42,
