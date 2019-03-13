@@ -106,7 +106,9 @@ function setup(){
 }
 
 var projectionMatrix = mat4.Identity();
+var modelMatrix = mat4.Identity();
 var cameraMatrix = mat4.Identity();
+
 var gl = null;
 var canvas = null;
 var program = null;
@@ -201,8 +203,8 @@ function main() {
 
     //In WebGL2 Culling is disabled by default. 
     //enable culling to respect polygon winding order
-    gl.enable(gl.CULL_FACE);
-    gl.cullFace(gl.BACK);
+    //gl.enable(gl.CULL_FACE);
+   // gl.cullFace(gl.BACK);
     
     //set up projection matrix
     projectionMatrix.projection( Math.PI * 0.25, canvas.width/canvas.height, 0.1, 1000.0);
@@ -213,9 +215,23 @@ function main() {
     requestAnimationFrame(mainLoop);
 }
 
-function mainLoop(){
+var lastFrameTimeMs = 0;
+var maxFPS = 60;
+var timestep = 1.0 / maxFPS;
+var delta = 0;
 
-    var modelMatrix = mat4.Identity();
+function mainLoop(timestamp){
+
+    delta = (timestamp - lastFrameTimeMs) * 0.001;
+    lastFrameTimeMs = timestamp;
+
+    var rotationMatrix = mat4.Identity();
+    rotationMatrix.rotateX(3.0 * delta);
+    var rotZMatrix = mat4.Identity();
+    rotZMatrix.rotateZ(2.0 * delta);
+
+    modelMatrix = modelMatrix.mul(rotationMatrix);
+    modelMatrix = modelMatrix.mul(rotZMatrix);
     var viewMatrix = new mat4(cameraMatrix);
     viewMatrix.inverse(); 
 
