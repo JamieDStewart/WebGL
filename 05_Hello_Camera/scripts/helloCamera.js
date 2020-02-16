@@ -106,7 +106,9 @@ function setup(){
 }
 
 var projectionMatrix = mat4.Identity();
+var modelMatrix = mat4.Identity();
 var cameraMatrix = mat4.Identity();
+
 var gl = null;
 var canvas = null;
 var program = null;
@@ -117,8 +119,8 @@ function main() {
 
     //grab the canvas element from the document
     canvas = document.getElementById('WebGL');
-    canvas.width = 1920;
-    canvas.height = 1080;
+    canvas.width = 512;
+    canvas.height = 512;
     canvas.style = "border:1px solid #000000;";
     //Initialise the WebGL context
     gl = initWebGL(canvas);
@@ -201,8 +203,8 @@ function main() {
 
     //In WebGL2 Culling is disabled by default. 
     //enable culling to respect polygon winding order
-    gl.enable(gl.CULL_FACE);
-    gl.cullFace(gl.BACK);
+    //gl.enable(gl.CULL_FACE);
+   // gl.cullFace(gl.BACK);
     
     //set up projection matrix
     projectionMatrix.projection( Math.PI * 0.25, canvas.width/canvas.height, 0.1, 1000.0);
@@ -213,9 +215,26 @@ function main() {
     requestAnimationFrame(mainLoop);
 }
 
-function mainLoop(){
+var lastFrameTimeMs = 0;
+var maxFPS = 60;
+var timestep = 1.0 / maxFPS;
+var delta = 0;
 
-    var modelMatrix = mat4.Identity();
+function mainLoop(timestamp){
+
+    delta = (timestamp - lastFrameTimeMs) * 0.001;
+    lastFrameTimeMs = timestamp;
+
+    var rotationMatrix = mat4.Identity();
+    rotationMatrix.rotateX(3.0 * delta);
+    var rotZMatrix = mat4.Identity();
+    rotZMatrix.rotateZ(2.0 * delta);
+
+    modelMatrix = modelMatrix.mul(rotationMatrix);
+    modelMatrix = modelMatrix.mul(rotZMatrix);
+
+    cameraMatrix = freeMovement(cameraMatrix, delta, 10, new vec4(0,1,0,0) );
+
     var viewMatrix = new mat4(cameraMatrix);
     viewMatrix.inverse(); 
 
@@ -241,4 +260,138 @@ function mainLoop(){
 
     requestAnimationFrame(mainLoop);
 }
+
+/**
+     * Function to implement free movement  camera in OpenGL
+     * @param {mat4} a_transform
+     * @param {number} a_deltaTime
+     * @param {number} a_speed 
+     * @param {vec4} a_up the world up direction default is vec4(0,1,0,0)
+     * @return {mat4} returns a new mat4 with adjusted position beased on key input
+     */
+function freeMovement( a_transform, a_deltaTime, a_speed, a_up ){
+    var vForward = a_transform.zAxis;
+    var vRight = a_transform.xAxis;
+    var vUp = a_transform.yAxis;
+    var vTranslation = a_transform.translation;
+
+    var framespeed = Key.isDown(Key.SHIFT) ? a_deltaTime * a_speed * 2.0 : a_deltaTime * a_speed;
+
+    if( Key.isDown(Key.W)){
+        vTranslation = vTranslation.sub(vForward.mul(framespeed)); 
+    }
+    if( Key.isDown(Key.S)){
+        vTranslation = vTranslation.add(vForward.mul(framespeed)); 
+    }
+    if( Key.isDown(Key.D)){
+        vTranslation = vTranslation.add(vRight.mul(framespeed)); 
+    }
+    if( Key.isDown(Key.A)){
+        vTranslation = vTranslation.sub(vRight.mul(framespeed)); 
+    }
+    if( Key.isDown(Key.Q)){
+        vTranslation = vTranslation.add(vUp.mul(framespeed)); 
+    }
+    if( Key.isDown(Key.E)){
+        vTranslation = vTranslation.sub(vUp.mul(framespeed)); 
+    }
+
+    a_transform.translation = vTranslation;
+
+    if( Mouse.isButtonDown(Mouse.LEFT)){
+        console.log("Button Down " + Mouse.X + " " + Mouse.Y );
+        
+		var iDeltaX = Mouse.X - Mouse.pX;
+		var iDeltaY = Mouse.Y - Mouse.pY;
+        Mouse.setPreviousPosition( Mouse.X, Mouse.Y);
+        
+        var mMat = mat4.Identity();;
+		
+		// pitch
+		if (iDeltaY != 0)
+		{
+			mMat.axisAngleMatrix( vRight, -iDeltaY / 150.0 );
+			vRight = mMat.mul(vRight);
+			vUp = mMat.mul(vUp);
+			vForward = mMat.mul(vForward);
+		}
+
+		// yaw
+		if (iDeltaX != 0)
+		{
+			mMat.axisAngleMatrix( a_up, -iDeltaX / 150.0 );
+			vRight = mMat.mul(vRight);
+			vUp = mMat.mul(vUp);
+			vForward = mMat.mul(vForward);
+		}
+
+		a_transform.xAxis = vRight;
+		a_transform.yAxis = vUp;
+		a_transform.zAxis = vForward;
+    }
+    return a_transform;
+
+
+} 
+//key handling for input
+var Key = {
+    _pressed: {},
+      SHIFT:16,
+      Q: 81,
+      E: 69,
+      W: 87,
+      S: 83,  
+      A: 65,
+      D: 68,
+
+      isDown: function(keyCode) {
+        return this._pressed[keyCode];
+      },
+
+      onKeydown: function(event) {
+        this._pressed[event.keyCode] = true;
+      },
+
+      onKeyup: function(event) {
+        delete this._pressed[event.keyCode];
+      }
+};
+
+window.addEventListener('keyup', function(event) { Key.onKeyup(event); }, false);
+window.addEventListener('keydown', function(event) { Key.onKeydown(event); }, false);
+
+var Mouse={
+    _pressed:{},
+    LEFT: 0,
+    MIDDLE:1,
+    RIGHT:2,
+    
+    onButtonDown: function(event){
+        this._pressed[event.button] = true;
+        this.pX = event.clientX;
+        this.pY = event.clientY;
+    },
+
+    onButtonUp: function(event){
+        delete this._pressed[event.button];
+    },
+
+    isButtonDown: function(buttonCode){
+        return this._pressed[buttonCode];
+    },
+
+    onMove: function(event){
+        this.X = event.clientX;
+        this.Y = event.clientY;
+    },
+
+    setPreviousPosition: function( a_x, a_y){
+        this.pX = a_x;
+        this.pY = a_y;
+    }
+    
+};
+window.addEventListener('mousedown', function(event){Mouse.onButtonDown(event);}, false);
+window.addEventListener('mouseup', function(event){Mouse.onButtonUp(event);}, false);
+window.addEventListener('mousemove', function(event){Mouse.onMove(event);}, false);
 
