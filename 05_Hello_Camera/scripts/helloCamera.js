@@ -393,4 +393,5 @@ var Mouse={
 window.addEventListener('mousedown', function(event){Mouse.onButtonDown(event);}, false);
 window.addEventListener('mouseup', function(event){Mouse.onButtonUp(event);}, false);
 window.addEventListener('mousemove', function(event){Mouse.onMove(event);}, false);
-
+//disable the right mouse button context menu 
+window.addEventListener('contextmenu', function(event){event.preventDefault();}, false);

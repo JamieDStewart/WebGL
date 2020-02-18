@@ -664,6 +664,37 @@ class mat3{
        return m3;
    }
 
+   /**
+    * This function mimics the gml axisAngleMatrix function and constructs a matrix from a given 
+    * axis and angle. Returns a mat4
+    * @param {vec3} axis - The normalised axis to construct the matrix around
+    * @param {number} angle - the angle to rotate the axis by
+    * @returns {mat3}
+    * */
+   axisAngleMatrix( axis, angle){
+    var c = Math.cos(angle);
+    var s = Math.sin(angle);
+    var t = 1.0 - c;
+        
+    this.m11 = c + axis.x*axis.x*t;
+    this.m22 = c + axis.y*axis.y*t;
+    this.m33 = c + axis.z*axis.z*t;
+
+
+    var tmp1 = axis.x*axis.y*t;
+    var tmp2 = axis.z*s;
+    this.m21 = tmp1 + tmp2;
+    this.m12 = tmp1 - tmp2;
+    tmp1 = axis.x*axis.z*t;
+    tmp2 = axis.y*s;
+    this.m31 = tmp1 - tmp2;
+    this.m13 = tmp1 + tmp2;    
+    tmp1 = axis.y*axis.z*t;
+    tmp2 = axis.x*s;
+    this.m32 = tmp1 + tmp2;
+    this.m23 = tmp1 - tmp2;
+}
+
 }
 
 class mat4{
