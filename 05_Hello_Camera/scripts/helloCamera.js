@@ -299,8 +299,7 @@ function freeMovement( a_transform, a_deltaTime, a_speed, a_up ){
     a_transform.translation = vTranslation;
 
     if( Mouse.isButtonDown(Mouse.LEFT)){
-        console.log("Button Down " + Mouse.X + " " + Mouse.Y );
-        
+                
 		var iDeltaX = Mouse.X - Mouse.pX;
 		var iDeltaY = Mouse.Y - Mouse.pY;
         Mouse.setPreviousPosition( Mouse.X, Mouse.Y);

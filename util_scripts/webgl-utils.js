@@ -134,8 +134,8 @@ function createProgramFromScriptTags( a_gl, a_vertexTagID, a_fragmentTagID){
  * @param {function} a_callback the function that is to be called when the shader file is loaded
  */
 function loadShaderFromFile( a_filename, a_shaderType, a_callback){
-    var fileData = new XMLHttpRequest();
-    fileData.onreadystatechange = function(){
+    var filehttpREQ = new XMLHttpRequest();
+    filehttpREQ.onreadystatechange = function(){
         if( this.readyState === 4 ){
             if(this.status === 200 || this.status == 0 ){
                 //file has been successfully loaded
@@ -145,7 +145,7 @@ function loadShaderFromFile( a_filename, a_shaderType, a_callback){
             }
         }
     }
-    fileData.open("GET", a_filename, false);
-    fileData.send();
+    filehttpREQ.open("GET", a_filename, true);
+    filehttpREQ.send();
 
 }

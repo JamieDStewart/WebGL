@@ -16,7 +16,7 @@
             "type": "chrome",
             "request": "launch",
             "runtimeArgs": ["--allow-file-access-from-files"],
-            "file": "${workspaceFolder}/05_Hello_Camera/index.html"
+            "file": "${workspaceFolder}/06_Hello_Ground/index.html"
             
         },
     ]
